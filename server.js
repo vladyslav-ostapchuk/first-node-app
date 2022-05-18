@@ -1,25 +1,48 @@
 const http = require('http')
+const fs = require('fs')
+const { resolve } = require('path')
 
-let c = 0
+const delay = (ms) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve()
+        }, ms)
+    })
+}
+const readFile = (path) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(path, (err, data) => {
+            if (err) reject(err)
+            else resolve(data)
+        })
+    })
+}
 
-const server = http.createServer((request, response) => {
-
-    c++
-
+const server = http.createServer(async (request, response) => {
     switch (request.url) {
-        case '/student':
-            response.write('student ')
+        case '/home': {
+            try {
+                const data = await readFile('pages/about.html')
+                response.write(data)
+                response.end()
+            } catch (err) {
+                response.write('something wrong, 500')
+                response.end()
+            }
+            break
+        }
+        case '/about': {
+            await delay(3000)
+            response.write('about something ')
+            response.end()
             break;
-        case '/':
-        case '/courses':
-            response.write('Fromt + Back ')
-            break;
-        default:
+        }
+        default: {
             response.write('404 not faund ')
-    }
+            response.end()
 
-    response.write('Vlad IT Goad: ' + c)
-    response.end()
+        }
+    }
 })
 
 
